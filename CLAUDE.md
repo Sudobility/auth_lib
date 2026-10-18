@@ -196,7 +196,7 @@ exported so code outside React reads the same instance.
 
 ### Firebase Proxy Lives in `di`, Not Here
 The China reverse-proxy core moved to `@sudobility/di` (`src/firebase/firebase-proxy.ts`)
-because it covers Analytics, Remote Config and Installations, not just Auth. `auth_lib`
+because it covers Analytics and Installations, not just Auth. `auth_lib`
 re-exports the API for compatibility and keeps only the auth-specific provider filtering.
 
 Rules that matter when touching this:
