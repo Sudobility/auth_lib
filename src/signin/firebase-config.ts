@@ -88,12 +88,10 @@ export function googleWebClientIdFromServicesJson(json: unknown): string {
       (client['oauth_client'] as Array<Record<string, unknown>> | undefined) ??
       [];
     const services = client['services'] as
-      | Record<string, Record<string, unknown>>
-      | undefined;
+      Record<string, Record<string, unknown>> | undefined;
     const other =
       (services?.['appinvite_service']?.['other_platform_oauth_client'] as
-        | Array<Record<string, unknown>>
-        | undefined) ?? [];
+        Array<Record<string, unknown>> | undefined) ?? [];
     const web = [...oauth, ...other].find(c => c['client_type'] === 3);
     if (web && typeof web['client_id'] === 'string') return web['client_id'];
   }
