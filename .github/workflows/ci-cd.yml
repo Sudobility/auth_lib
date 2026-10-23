@@ -18,8 +18,11 @@ permissions:
   contents: write      # For creating GitHub releases
   id-token: write      # For NPM provenance
   deployments: write   # For deployment tracking
+  packages: write
 
 jobs:
   cicd:
     uses: johnqh/workflows/.github/workflows/unified-cicd.yml@main
-    secrets: inherit  # Pass all repository secrets
+    secrets: inherit
+    with:
+      publish-target: github
