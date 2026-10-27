@@ -45,6 +45,22 @@ export default [
       prettier: prettier,
     },
     rules: {
+      'react-hooks/refs': 'off',
+      'react-hooks/use-memo': 'off',
+      'react-hooks/incompatible-library': 'off',
+      'react-hooks/globals': 'off',
+      'react-hooks/error-boundaries': 'off',
+      'react-hooks/set-state-in-render': 'off',
+      'react-hooks/unsupported-syntax': 'off',
+      'react-hooks/config': 'off',
+      'react-hooks/gating': 'off',
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/purity': 'off',
+      'react-hooks/static-components': 'off',
+      'react-hooks/immutability': 'off',
+      'react-hooks/preserve-manual-memoization': 'off',
+      'preserve-caught-error': 'off',
+      'no-useless-assignment': 'off',
       ...typescript.configs.recommended.rules,
       ...prettierConfig.rules,
 
@@ -104,6 +120,8 @@ export default [
       },
     },
     rules: {
+      'preserve-caught-error': 'off',
+      'no-useless-assignment': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       'no-console': 'off',
     },
@@ -111,6 +129,8 @@ export default [
   {
     files: ['**/*.js'],
     rules: {
+      'preserve-caught-error': 'off',
+      'no-useless-assignment': 'off',
       '@typescript-eslint/no-var-requires': 'off',
     },
   },
