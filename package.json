@@ -1,6 +1,6 @@
 {
   "name": "@sudobility/auth_lib",
-  "version": "0.0.122",
+  "version": "0.0.123",
   "description": "Firebase authentication utilities with token refresh handling",
   "type": "module",
   "main": "./dist/index.js",
@@ -48,7 +48,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node scripts/fix-esm-imports.mjs",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
     "typecheck": "bunx tsc --noEmit",
@@ -64,8 +64,8 @@
     "firebase": "^12.7.0",
     "@react-native-firebase/app": ">=18.0.0",
     "@react-native-firebase/auth": ">=18.0.0",
-    "@sudobility/di": "^1.5.83",
-    "@sudobility/types": "^1.9.76",
+    "@sudobility/di": "^1.5.84",
+    "@sudobility/types": "^1.9.78",
     "@tanstack/react-query": "^5.0.0"
   },
   "peerDependenciesMeta": {
@@ -81,8 +81,8 @@
   },
   "devDependencies": {
     "@eslint/js": "~10.0.1",
-    "@sudobility/di": "^1.5.83",
-    "@sudobility/types": "^1.9.76",
+    "@sudobility/di": "^1.5.84",
+    "@sudobility/types": "^1.9.78",
     "@tanstack/react-query": "~5.104.5",
     "@types/bun": "~1.4.4",
     "@types/node": "~26.6.5",
