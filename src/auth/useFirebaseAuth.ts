@@ -13,9 +13,12 @@ import {
   sendPasswordResetEmail as firebaseSendPasswordResetEmail,
   signInAnonymously as firebaseSignInAnonymously,
   signOut as firebaseSignOut,
+  GoogleAuthProvider,
+  OAuthProvider,
   onAuthStateChanged,
   signInWithCredential,
   signInWithEmailAndPassword,
+  signInWithPopup,
   type User,
 } from 'firebase/auth';
 import { signInWithGoogleOAuthDesktop } from '../oauth/google';
@@ -143,6 +146,12 @@ export function useFirebaseAuthJs(
   const [isReady, setIsReady] = useState(false);
   const [rawUser, setRawUser] = useState<User | null>(null);
   const prevUidRef = useRef<string | null>(null);
+  // Set by `signOut` so the auth listener can tell an explicit sign-out from a
+  // fresh launch. On an explicit sign-out it publishes the logged-out state
+  // right away (so the UI responds immediately) before the `autoSignInAnonymously`
+  // fallback re-creates a guest session; on a fresh launch it goes straight to
+  // the anonymous session without flashing a logged-out UI.
+  const signedOutRef = useRef(false);
 
   useEffect(() => {
     const cfg = configRef.current;
@@ -159,6 +168,26 @@ export function useFirebaseAuthJs(
 
       unsubscribe = onAuthStateChanged(auth, async firebaseUser => {
         if (!firebaseUser && configRef.current.autoSignInAnonymously) {
+          // Signed out, with the anonymous fallback enabled. On an *explicit*
+          // sign-out, publish the signed-out state first so the UI leaves the
+          // signed-in state immediately — even if the anonymous sign-in below
+          // is slow or fails. The anonymous user that follows is still treated
+          // as logged out by callers (via `isAnonymous`). On a fresh launch
+          // (no explicit sign-out) skip that, to avoid flashing a logged-out UI
+          // before the anonymous session is ready.
+          if (signedOutRef.current) {
+            signedOutRef.current = false;
+            if (prevUidRef.current !== null) {
+              configRef.current.onIdentityChange?.(prevUidRef.current, null);
+              prevUidRef.current = null;
+            }
+            setUser(null);
+            setRawUser(null);
+            setToken(null);
+            configRef.current.onUserChanged?.(null);
+            setIsLoading(false);
+            setIsReady(true);
+          }
           try {
             await firebaseSignInAnonymously(auth);
           } catch (error) {
@@ -168,6 +197,10 @@ export function useFirebaseAuthJs(
           }
           return; // listener re-fires with the anonymous user
         }
+
+        // Signed out with no anonymous fallback, or a user is present: clear
+        // the explicit-sign-out guard and publish the current state.
+        signedOutRef.current = false;
 
         const mapped = toAuthUser(firebaseUser);
         const nextUid = mapped?.uid ?? null;
@@ -238,6 +271,11 @@ export function useFirebaseAuthJs(
     const cfg = configRef.current;
     setIsLoading(true);
     try {
+      if (cfg.webPopup) {
+        // Browser: Firebase's own popup flow (no borrowed credential).
+        await signInWithPopup(auth, new GoogleAuthProvider());
+        return;
+      }
       let credential;
       if (cfg.platform) {
         credential = await googleCredential(cfg.platform, signInConfigOf(cfg), {
@@ -283,6 +321,19 @@ export function useFirebaseAuthJs(
         );
         if (!credential) throw signInCancelledError();
         await signInWithCredential(auth, credential);
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
+    if (cfg.webPopup) {
+      // Browser: Firebase's own popup flow.
+      setIsLoading(true);
+      try {
+        const provider = new OAuthProvider('apple.com');
+        provider.addScope('email');
+        provider.addScope('name');
+        await signInWithPopup(auth, provider);
       } finally {
         setIsLoading(false);
       }
@@ -354,8 +405,14 @@ export function useFirebaseAuthJs(
     const auth = await loadFirebaseJsAuth(configRef.current);
     if (!auth) return;
     setIsLoading(true);
+    // Mark this as an explicit sign-out so the auth listener publishes the
+    // signed-out state instead of re-creating an anonymous session.
+    signedOutRef.current = true;
     try {
       await firebaseSignOut(auth);
+    } catch (error) {
+      signedOutRef.current = false;
+      throw error;
     } finally {
       setIsLoading(false);
     }

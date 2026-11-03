@@ -64,6 +64,12 @@ export function useFirebaseAuthNative(
   const [isReady, setIsReady] = useState(false);
   const [rawUser, setRawUser] = useState<NativeUser | null>(null);
   const prevUidRef = useRef<string | null>(null);
+  // Set by `signOut` so the auth listener can tell an explicit sign-out from a
+  // fresh launch. On an explicit sign-out it publishes the logged-out state
+  // right away (so the UI responds immediately) before the
+  // `autoSignInAnonymously` fallback re-creates a guest session; on a fresh
+  // launch it goes straight to the anonymous session without a logged-out flash.
+  const signedOutRef = useRef(false);
 
   useEffect(() => {
     const { getAuth, onAuthStateChanged, signInAnonymously } = getRnAuth();
@@ -74,6 +80,26 @@ export function useFirebaseAuthNative(
       auth,
       async (firebaseUser: NativeUser | null) => {
         if (!firebaseUser && configRef.current.autoSignInAnonymously) {
+          // Signed out, with the anonymous fallback enabled. On an *explicit*
+          // sign-out, publish the signed-out state first so the UI leaves the
+          // signed-in state immediately — even if the anonymous sign-in below
+          // is slow or fails. The anonymous user that follows is still treated
+          // as logged out by callers (via `isAnonymous`). On a fresh launch
+          // (no explicit sign-out) skip that, to avoid flashing a logged-out UI
+          // before the anonymous session is ready.
+          if (signedOutRef.current) {
+            signedOutRef.current = false;
+            if (prevUidRef.current !== null) {
+              configRef.current.onIdentityChange?.(prevUidRef.current, null);
+              prevUidRef.current = null;
+            }
+            setUser(null);
+            setRawUser(null);
+            setToken(null);
+            configRef.current.onUserChanged?.(null);
+            setIsLoading(false);
+            setIsReady(true);
+          }
           try {
             await signInAnonymously(auth);
           } catch (error) {
@@ -83,6 +109,10 @@ export function useFirebaseAuthNative(
           }
           return;
         }
+
+        // Signed out with no anonymous fallback, or a user is present: clear
+        // the explicit-sign-out guard and publish the current state.
+        signedOutRef.current = false;
 
         const mapped = toAuthUser(firebaseUser);
         const nextUid = mapped?.uid ?? null;
@@ -265,9 +295,15 @@ export function useFirebaseAuthNative(
 
   const signOut = useCallback(async () => {
     setIsLoading(true);
+    // Mark this as an explicit sign-out so the auth listener publishes the
+    // signed-out state instead of re-creating an anonymous session.
+    signedOutRef.current = true;
     try {
       const { getAuth, signOut: rnSignOut } = getRnAuth();
       await rnSignOut(getAuth());
+    } catch (error) {
+      signedOutRef.current = false;
+      throw error;
     } finally {
       setIsLoading(false);
     }

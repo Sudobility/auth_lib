@@ -13,16 +13,40 @@ import {
 } from 'react';
 import type { AuthContextValue, FirebaseAuthConfig } from './types';
 
+/**
+ * A shared auth context fed by the AuthProvider that
+ * `createFirebaseAuthContext` builds. It lets standalone hooks (`useIsLoggedIn`)
+ * and other libraries (e.g. subscription_lib's `useIsUserSubscribable`) read
+ * auth state without the per-app factory handle. Exactly one auth context is
+ * live per app build, so this single shared context is unambiguous.
+ */
+const SharedAuthContext = createContext<AuthContextValue | null>(null);
+
+/**
+ * Whether the current user is logged in: a real, non-anonymous account
+ * (`!!user && !user.isAnonymous`). An anonymous user has a userId but counts as
+ * "logged out" for UI purposes. Standalone — reads the AuthProvider that
+ * `createFirebaseAuthContext` builds; returns `false` outside any provider.
+ */
+export function useIsLoggedIn(): boolean {
+  const ctx = useContext(SharedAuthContext);
+  const user = ctx?.user ?? null;
+  return !!user && !user.isAnonymous;
+}
+
 export interface FirebaseAuthContext {
   AuthProvider: (props: { children: ReactNode }) => ReactNode;
   useAuth: () => AuthContextValue;
+  /** The standalone {@link useIsLoggedIn}, re-exposed on the factory handle. */
+  useIsLoggedIn: () => boolean;
 }
 
 /**
- * Build an `{ AuthProvider, useAuth }` pair backed by the given hook variant
- * (`useFirebaseAuthJs` or `useFirebaseAuthNative`) and config. Each platform's
- * context file calls this once; Metro's `.ios`/`.android`/base resolution
- * ensures exactly one context is live per build.
+ * Build an `{ AuthProvider, useAuth, useIsLoggedIn }` set backed by the given
+ * hook variant (`useFirebaseAuthJs` or `useFirebaseAuthNative`) and config.
+ * Each platform's context file calls this once; Metro's `.ios`/`.android`/base
+ * resolution ensures exactly one context is live per build. The AuthProvider
+ * also feeds the shared context behind the standalone {@link useIsLoggedIn}.
  */
 export function createFirebaseAuthContext(
   useAuthHook: (config: FirebaseAuthConfig) => AuthContextValue,
@@ -32,7 +56,13 @@ export function createFirebaseAuthContext(
 
   function AuthProvider({ children }: { children: ReactNode }): ReactNode {
     const value = useAuthHook(config);
-    return createElement(Context.Provider, { value }, children);
+    // Feed both the per-app context (for useAuth) and the shared context
+    // (for the standalone useIsLoggedIn and other libraries).
+    return createElement(
+      SharedAuthContext.Provider,
+      { value },
+      createElement(Context.Provider, { value }, children)
+    );
   }
 
   function useAuth(): AuthContextValue {
@@ -43,5 +73,5 @@ export function createFirebaseAuthContext(
     return ctx;
   }
 
-  return { AuthProvider, useAuth };
+  return { AuthProvider, useAuth, useIsLoggedIn };
 }

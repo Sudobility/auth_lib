@@ -98,6 +98,12 @@ export interface FirebaseAuthConfig {
    * macOS and Windows pass `firebaseConfig`, a FirebaseWebConfig, instead.
    */
   serviceFiles?: ServiceFileSources;
+  /**
+   * Browser (web) only: use Firebase's own `signInWithPopup` for Google and
+   * Apple instead of a borrowed credential or desktop PKCE. Set by the web app,
+   * where there is no `platform` and no system-browser bridge.
+   */
+  webPopup?: boolean;
   /** Desktop Google PKCE config (`clientId` + `reversedClientId`). */
   googleOAuth?: OAuthClientConfig;
   /** Injected system-browser bridge for desktop Google PKCE. */
