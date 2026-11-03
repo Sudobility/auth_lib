@@ -5,5 +5,10 @@
  */
 
 export * from './types';
-export { createFirebaseAuthContext, type FirebaseAuthContext } from './context';
+export {
+  createFirebaseAuthContext,
+  useIsLoggedIn,
+  useAuthUser,
+  type FirebaseAuthContext,
+} from './context';
 export { useFirebaseAuthNative } from './useFirebaseAuth.rn';

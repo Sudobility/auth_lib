@@ -11,7 +11,7 @@ import {
   type ReactNode,
   useContext,
 } from 'react';
-import type { AuthContextValue, FirebaseAuthConfig } from './types';
+import type { AuthContextValue, AuthUser, FirebaseAuthConfig } from './types';
 
 /**
  * A shared auth context fed by the AuthProvider that
@@ -32,6 +32,18 @@ export function useIsLoggedIn(): boolean {
   const ctx = useContext(SharedAuthContext);
   const user = ctx?.user ?? null;
   return !!user && !user.isAnonymous;
+}
+
+/**
+ * The current authenticated user (real or anonymous), or `null` when there is
+ * none. Standalone — reads the AuthProvider that `createFirebaseAuthContext`
+ * builds, so shared libraries (building_blocks, entity_pages, subscription_pages)
+ * can read the user without the per-app `useAuth` factory handle. Returns `null`
+ * outside any provider.
+ */
+export function useAuthUser(): AuthUser | null {
+  const ctx = useContext(SharedAuthContext);
+  return ctx?.user ?? null;
 }
 
 export interface FirebaseAuthContext {
