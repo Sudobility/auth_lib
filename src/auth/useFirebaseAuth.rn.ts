@@ -294,12 +294,18 @@ export function useFirebaseAuthNative(
   );
 
   const signOut = useCallback(async () => {
+    const { getAuth, signOut: rnSignOut } = getRnAuth();
+    // An anonymous user is already a guest — there is no account to leave.
+    // Signing them out would only trip the `autoSignInAnonymously` fallback,
+    // which mints a brand-new guest uid: a pointless "refresh" that churns the
+    // user id (and anything keyed on it, e.g. a subscription user or a
+    // per-user query). Keep the existing guest session untouched.
+    if (getAuth().currentUser?.isAnonymous) return;
     setIsLoading(true);
     // Mark this as an explicit sign-out so the auth listener publishes the
     // signed-out state instead of re-creating an anonymous session.
     signedOutRef.current = true;
     try {
-      const { getAuth, signOut: rnSignOut } = getRnAuth();
       await rnSignOut(getAuth());
     } catch (error) {
       signedOutRef.current = false;
