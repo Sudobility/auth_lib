@@ -7,8 +7,10 @@
  * - Firebase error message utilities
  */
 
-// Reverse-proxy shim for regions where googleapis.com is blocked.
-// AUTOMATIC: self-configures routing on library import (cached verdict /
+// China reverse-proxy API, re-exported from @sudobility/di. NOT automatic: the
+// app must call setFirebaseProxy(origin) at startup; importing this library does
+// not configure or route anything on its own.
+
 // Config
 export {
   initializeFirebaseAuth,
