@@ -6,7 +6,7 @@
       "name": "@sudobility/auth_lib",
       "devDependencies": {
         "@eslint/js": "~10.0.1",
-        "@sudobility/di": "^1.5.90",
+        "@sudobility/di": "^1.5.91",
         "@sudobility/types": "^1.11.2",
         "@tanstack/react-query": "~5.104.5",
         "@types/bun": "~1.4.4",
@@ -25,7 +25,7 @@
       "peerDependencies": {
         "@react-native-firebase/app": ">=18.0.0",
         "@react-native-firebase/auth": ">=18.0.0",
-        "@sudobility/di": "^1.5.90",
+        "@sudobility/di": "^1.5.91",
         "@sudobility/types": "^1.11.2",
         "@tanstack/react-query": "^5.0.0",
         "firebase": "^12.7.0",
@@ -307,7 +307,7 @@
 
     "@standard-schema/spec": ["@standard-schema/spec@1.1.0", "", {}, "sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w=="],
 
-    "@sudobility/di": ["@sudobility/di@1.5.90", "https://npm.pkg.github.com/download/@sudobility/di/1.5.90/648603b028b7e03c4933494b9ac371e211fdcf8b", { "peerDependencies": { "@notifee/react-native": ">=7.0.0", "@react-native-async-storage/async-storage": ">=1.19.0", "@react-native-community/netinfo": ">=9.0.0", "@react-native-firebase/analytics": ">=18.0.0", "@react-native-firebase/app": ">=18.0.0", "@react-native-firebase/messaging": ">=18.0.0", "@sudobility/types": "^1.11.2", "firebase": ">=11.0.0", "react": ">=18.0.0", "react-native": ">=0.70.0" } }, "sha512-3KV6nxHkCKzZhOtRZAX3GT5V6+wlAb3eXrvdDPeisqHIo41Jm8m818AkG1liHCHdGT8TSRos7L1jnro9P42oZA=="],
+    "@sudobility/di": ["@sudobility/di@1.5.91", "https://npm.pkg.github.com/download/@sudobility/di/1.5.91/5bdccb64b98d44119f84f0148e2a8c36a0d2e03a", { "peerDependencies": { "@notifee/react-native": ">=7.0.0", "@react-native-async-storage/async-storage": ">=1.19.0", "@react-native-community/netinfo": ">=9.0.0", "@react-native-firebase/analytics": ">=18.0.0", "@react-native-firebase/app": ">=18.0.0", "@react-native-firebase/messaging": ">=18.0.0", "@sudobility/types": "^1.11.2", "firebase": ">=11.0.0", "react": ">=18.0.0", "react-native": ">=0.70.0" } }, "sha512-9iC5Ug9SiO4bm+RvuvhHRu1WaxWb1XMkM0atsSdshTD3lh4DHZqWuTa7khScWwljaiuV7E/8YRVnxIkHoz2+aQ=="],
 
     "@sudobility/types": ["@sudobility/types@1.11.2", "https://npm.pkg.github.com/download/@sudobility/types/1.11.2/d6d0b1809eaca31ef737646032cc431111b58a49", {}, "sha512-gg+bPtcOGNETDt9oNdjcn7R22EfFWmRxMOhj0ADwulBJ9tJ4NaMaXkrTtkWF+figSDZqmD9a9kodgOHseq8gsQ=="],
 
